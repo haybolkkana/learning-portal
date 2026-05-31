@@ -34,6 +34,10 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const authStatus = document.getElementById('auth-status');
