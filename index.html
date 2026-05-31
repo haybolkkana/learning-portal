@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>学習ポータル</title>
+</head>
+<body>
+  <h1>学習ポータル</h1>
+  <div id="auth-status">状態を確認中...</div>
+  <button id="login-btn" style="display:none;">大学アカウントでログイン</button>
+  <button id="logout-btn" style="display:none;">ログアウト</button>
+  
+  <div id="content" style="display:none;">
+    <hr>
+    <p>認証完了。ここに学習ツールへのリンクなどを配置する。</p>
+  </div>
+
+  <script type="module">
+    // Firebase SDKの読み込み (v10)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    // 取得した君の設定情報に置き換えること
+    const firebaseConfig = {
+      apiKey: "AIzaSyCh6bZFDkhrgbgQZjCK0CFYTUKu3v6CkW4",
+      authDomain: "my-student-portal-ed52d.firebaseapp.com",
+      projectId: "my-student-portal-ed52d",
+      storageBucket: "my-student-portal-ed52d.firebasestorage.app",
+      messagingSenderId: "42281363513",
+      appId: "1:42281363513:web:93436ce91469fa159585e8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const authStatus = document.getElementById('auth-status');
+    const content = document.getElementById('content');
+
+    // 大学のドメインに変更すること
+    const allowedDomain = "@mai.ryukoku.ac.jp"; 
+
+    // ログイン状態の監視とドメイン判定
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.email.endsWith(allowedDomain)) {
+          authStatus.innerText = `アクセス許可: ${user.email}`;
+          loginBtn.style.display = 'none';
+          logoutBtn.style.display = 'block';
+          content.style.display = 'block';
+        } else {
+          alert("許可されていないドメインだ。アクセスを切断する。");
+          signOut(auth);
+        }
+      } else {
+        authStatus.innerText = "未認証";
+        loginBtn.style.display = 'block';
+        logoutBtn.style.display = 'none';
+        content.style.display = 'none';
+      }
+    });
+
+    // ログインイベント
+    loginBtn.addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch((error) => {
+        console.error("認証エラー:", error);
+      });
+    });
+
+    // ログアウトイベント
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth);
+    });
+  </script>
+</body>
+</html>
